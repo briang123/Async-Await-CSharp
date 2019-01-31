@@ -15,11 +15,8 @@ namespace Async_Await_CSharp
             Utility.RenderOutput("TaskRunnerSaveAll", Utility.StepDone);
         }
 
-        public static async Task ProcessTasksAsync()
+        public static async Task ProcessAsync()
         {
-            // Create task list to store all our tasks we need to run
-            var tasks = new List<Task>();
-
             // use Command pattern to execute tasks
             var taskManager = new TaskManager();
 
@@ -36,11 +33,8 @@ namespace Async_Await_CSharp
                 taskManager.AddTaskAsync(new FakePersonRepository(i, 200));
             }
 
-            // we will add our DoTask to the current list of Tasks using the command pattern
-            tasks.Add(taskManager.RunTasksAsync());
-
-            // when all worker data is retrieved and tasks are done
-            await Task.WhenAll(tasks);
+            // wait until all tasks are done executing
+            await Task.WhenAll(taskManager.RunTasksAsync());
 
             // simulate a batch save
             await SaveAll();

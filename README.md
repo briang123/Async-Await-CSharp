@@ -1,6 +1,6 @@
 # Async-Await-CSharp
 
-An Async/Await example in C# where we have a console application startup method calling the ```TaskRunner.ProcessTasksAsync()``` static method to initiate and kick off the async Tasks.
+An Async/Await example in C# where we have a console application startup method calling the ```TaskRunner.ProcessAsync()``` static method to initiate and kick off the async Tasks.
 
 Not all classes are shown below, but just a subset, for brevity.
 
@@ -11,7 +11,7 @@ public class Program
     {
         Utility.RenderOutput("ProcessTasks.ProcessAllAsync", Utility.StepStarted);
 
-        TaskRunner.ProcessTasksAsync().Wait();
+        TaskRunner.ProcessAsync().Wait();
 
         Utility.RenderOutput("ProcessTasks.ProcessAllAsync", Utility.StepDone);
 
@@ -35,11 +35,8 @@ internal class TaskRunner
         Utility.RenderOutput("TaskRunnerSaveAll", Utility.StepDone);
     }
 
-    public static async Task ProcessTasksAsync()
+    public static async Task ProcessAsync()
     {
-        // Create task list to store all our tasks we need to run
-        var tasks = new List<Task>();
-
         // use Command pattern to execute tasks
         var taskManager = new TaskManager();
 
@@ -56,11 +53,8 @@ internal class TaskRunner
             taskManager.AddTaskAsync(new FakePersonRepository(i, 200));
         }
 
-        // we will add our DoTask to the current list of Tasks using the command pattern
-        tasks.Add(taskManager.RunTasksAsync());
-
-        // when all worker data is retrieved and tasks are done
-        await Task.WhenAll(tasks);
+        // wait until all tasks are done executing
+        await Task.WhenAll(taskManager.RunTasksAsync());
 
         // simulate a batch save
         await SaveAll();
