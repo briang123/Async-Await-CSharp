@@ -134,3 +134,63 @@ public class Utility
     }
 }
 ```
+
+The results will look something like this in your command window...
+```console
+ProcessTasks.ProcessAllAsync started at 04:43:08.723 PM
+DoTask1RunAsync started 1 at 04:43:09.756 PM
+DoTask2RunAsync started 1 at 04:43:09.770 PM
+DoTask1RunAsync started 2 at 04:43:09.811 PM
+DoTask2RunAsync started 2 at 04:43:09.827 PM
+DoTask1RunAsync started 3 at 04:43:09.828 PM
+DoTask2RunAsync started 3 at 04:43:09.828 PM
+DoTask1RunAsync started 4 at 04:43:09.850 PM
+DoTask2RunAsync started 4 at 04:43:09.850 PM
+DoTask1RunAsync started 5 at 04:43:09.850 PM
+DoTask2RunAsync started 5 at 04:43:09.856 PM
+DoTask1RunAsync started 6 at 04:43:09.871 PM
+DoTask2RunAsync started 6 at 04:43:09.871 PM
+DoTask1RunAsync started 7 at 04:43:09.888 PM
+DoTask2RunAsync started 7 at 04:43:09.889 PM
+DoTask1RunAsync started 8 at 04:43:09.890 PM
+DoTask2RunAsync started 8 at 04:43:09.890 PM
+DoTask1RunAsync started 9 at 04:43:09.952 PM
+DoTask2RunAsync started 9 at 04:43:09.990 PM
+DoTask1RunAsync started 10 at 04:43:10.011 PM
+DoTask2RunAsync started 10 at 04:43:10.047 PM
+DoTask1RunAsync done 1 at 04:43:10.901 PM
+DoTask1RunAsync done 2 at 04:43:10.962 PM
+DoTask1RunAsync done 3 at 04:43:10.976 PM
+DoTask1RunAsync done 5 at 04:43:10.990 PM
+DoTask1RunAsync done 4 at 04:43:11.030 PM
+DoTask1RunAsync done 6 at 04:43:11.034 PM
+DoTask1RunAsync done 8 at 04:43:11.048 PM
+DoTask1RunAsync done 7 at 04:43:11.048 PM
+DoTask1RunAsync done 9 at 04:43:11.110 PM
+DoTask1RunAsync done 10 at 04:43:11.202 PM
+DoTask2RunAsync done 1 at 04:43:14.037 PM
+DoTask2RunAsync done 3 at 04:43:14.099 PM
+DoTask2RunAsync done 2 at 04:43:14.105 PM
+DoTask2RunAsync done 4 at 04:43:14.111 PM
+DoTask2RunAsync done 5 at 04:43:14.126 PM
+DoTask2RunAsync done 6 at 04:43:14.144 PM
+DoTask2RunAsync done 8 at 04:43:14.159 PM
+DoTask2RunAsync done 7 at 04:43:14.159 PM
+DoTask2RunAsync done 9 at 04:43:14.252 PM
+DoTask2RunAsync done 10 at 04:43:14.330 PM
+Fetched workers at 04:43:15.452 PM: Andrew Grant
+Fetched workers at 04:43:15.453 PM: Jazmin Schowalter
+Fetched workers at 04:43:15.453 PM: Lincoln Leuschke
+Fetched workers at 04:43:15.453 PM: Liliana Fadel
+Fetched workers at 04:43:15.454 PM: Ariane Stokes
+Fetched workers at 04:43:15.454 PM: Jeromy Stoltenberg
+Fetched workers at 04:43:15.454 PM: Demarcus Murray
+Fetched workers at 04:43:15.454 PM: Dr. Sid Marks
+Fetched workers at 04:43:15.454 PM: Ali VonRueden
+Fetched workers at 04:43:15.454 PM: Annalise Langosh
+Fetched workers at 04:43:15.454 PM: Melyna Boyle
+ProcessTasksSaveAll started at 04:43:15.455 PM
+ProcessTasksSaveAll done at 04:43:17.467 PM
+ProcessTasks.ProcessAllAsync done at 04:43:17.467 PM
+Press any key to continue...
+```
