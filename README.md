@@ -7,17 +7,17 @@ Not all classes are shown below, but just a subset, for brevity.
 ```C#
 public class Program
 {
-    public static void Main()
-    {
-        Utility.RenderOutput("ProcessTasks.ProcessAllAsync", Utility.StepStarted);
+  public static void Main()
+  {
+      Console.WriteLine(Utility.GenerateOutputMessage("ProcessTasks.ProcessAllAsync", Utility.StepStarted));
 
-        TaskRunner.ProcessAsync().Wait();
+      TaskRunner.ProcessAsync().Wait();
 
-        Utility.RenderOutput("ProcessTasks.ProcessAllAsync", Utility.StepDone);
+      Console.WriteLine(Utility.GenerateOutputMessage("ProcessTasks.ProcessAllAsync", Utility.StepDone));
 
-        Console.WriteLine(@"Press any key to continue...");
-        Console.ReadKey(true);
-    }
+      Console.WriteLine(@"Press any key to continue...");
+      Console.ReadKey(true);
+  }
 }
 ```
 
@@ -27,12 +27,12 @@ internal class TaskRunner
 {
     private static async Task SaveAll()
     {
-        Utility.RenderOutput("TaskRunnerSaveAll", Utility.StepStarted);
+        Console.WriteLine(Utility.GenerateOutputMessage("TaskRunnerSaveAll", Utility.StepStarted));
 
         // simulate a save routine by adding a little delay
         await Task.Delay(2000);
 
-        Utility.RenderOutput("TaskRunnerSaveAll", Utility.StepDone);
+        Console.WriteLine(Utility.GenerateOutputMessage("TaskRunnerSaveAll", Utility.StepDone));
     }
 
     public static async Task ProcessAsync()
@@ -148,27 +148,21 @@ public class Utility
     public static string StepStarted = "started";
     public static string StepDone = "done";
 
-    public static string GetDate()
+    public static string GetFormattedDate(DateTime date)
     {
-        return DateTime.Now.ToString("hh:mm:ss.fff tt");
+        return date.ToString("hh:mm:ss.fff tt");
     }
 
-    public static void RenderOutput(string taskName, string stepName)
+    public static string GenerateOutputMessage(string taskName, string stepName)
     {
-        Console.WriteLine(@"{0} {1} at {2}", taskName, stepName.ToLower(), GetDate());
+        return $"{taskName} {stepName.ToLower()} at {GetFormattedDate(DateTime.Now)}";
     }
 
-    public static void RenderOutput(string taskName, string stepName, int num, string message)
+    public static string GenerateOutputMessage(string taskName, string stepName, int num, string message)
     {
-        if (message != null)
-        {
-            Console.WriteLine(@"{0} {1} {2} [Message: {3}] at {4}", taskName, stepName.ToLower(), num, message,
-                GetDate());
-        }
-        else
-        {
-            Console.WriteLine(@"{0} {1} {2} at {3}", taskName, stepName.ToLower(), num, GetDate());
-        }
+        return message != null ?
+            $"{taskName} {stepName.ToLower()} {num} [Message: {message}] at {GetFormattedDate(DateTime.Now)}" :
+            $"{taskName} {stepName.ToLower()} {num} at {GetFormattedDate(DateTime.Now)}";
     }
 
     public static int GetDelay(int ms)
@@ -178,11 +172,11 @@ public class Utility
 
     public static async Task RunAsyncTask(string classIdentifier, int num, int delayInMilliseconds, string message = null)
     {
-        RenderOutput(classIdentifier, StepStarted, num, message);
+        Console.WriteLine(GenerateOutputMessage(classIdentifier, StepStarted, num, message));
 
         await Task.Delay(GetDelay(delayInMilliseconds));
 
-        RenderOutput(classIdentifier, StepDone, num, message);
+        Console.WriteLine(GenerateOutputMessage(classIdentifier, StepDone, num, message));
 
         Console.WriteLine("");
     }
