@@ -8,7 +8,8 @@ namespace Async_Await_CSharp
         {
             Console.WriteLine(Utility.GenerateOutputMessage("ProcessTasks.ProcessAllAsync", Utility.StepStarted));
 
-            TaskRunner.ProcessAsync().Wait();
+            var taskRunner = new TaskRunner();
+            taskRunner.ProcessAsync().Wait();
 
             Console.WriteLine(Utility.GenerateOutputMessage("ProcessTasks.ProcessAllAsync", Utility.StepDone));
 

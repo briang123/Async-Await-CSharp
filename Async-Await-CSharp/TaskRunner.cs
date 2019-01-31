@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Async_Await_CSharp
 {
-    internal class TaskRunner
+    internal class TaskRunner : ITaskRunner
     {
-        private static async Task SaveAll()
+        public async Task SaveAll()
         {
             Console.WriteLine(Utility.GenerateOutputMessage("TaskRunnerSaveAll", Utility.StepStarted));
 
@@ -15,7 +15,7 @@ namespace Async_Await_CSharp
             Console.WriteLine(Utility.GenerateOutputMessage("TaskRunnerSaveAll", Utility.StepDone));
         }
 
-        public static async Task ProcessAsync()
+        public async Task ProcessAsync()
         {
             // use Command pattern to execute tasks
             var taskManager = new TaskManager();
@@ -39,5 +39,6 @@ namespace Async_Await_CSharp
             // simulate a batch save
             await SaveAll();
         }
+
     }
 }

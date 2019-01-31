@@ -2,7 +2,7 @@
 
 namespace Async_Await_CSharp
 {
-    public class DoTask2 : IDoTaskAsync
+    public class DoTask2 : TaskBase, IDoTaskAsync
     {
         private readonly int _delayInMilliseconds;
         private readonly int _taskId;
@@ -16,7 +16,7 @@ namespace Async_Await_CSharp
 
         public async Task RunAsync()
         {
-            await Utility.RunAsyncTask(ClassIdentifier, _taskId, _delayInMilliseconds);
+            await base.RunAsyncTask(ClassIdentifier, _taskId, _delayInMilliseconds);
         }
     }
 }

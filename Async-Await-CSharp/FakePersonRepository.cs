@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Async_Await_CSharp
 {
-    internal class FakePersonRepository : IDoTaskAsync
+    internal class FakePersonRepository : TaskBase, IDoTaskAsync
     {
         private readonly int _delayInMilliseconds;
         private readonly int _taskId;
@@ -23,7 +23,7 @@ namespace Async_Await_CSharp
                 FullName = Faker.Name.FullName()
             };
 
-            await Utility.RunAsyncTask(
+            await base.RunAsyncTask(
                 ClassIdentifier,
                 _taskId,
                 _delayInMilliseconds,
