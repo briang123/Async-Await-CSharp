@@ -1,6 +1,6 @@
 # Async-Await-CSharp
 
-An Async/Await example in C# where we have a console application startup method calling the ```ProcessTasks.ProcessAllAsync()``` static method to initiate and kick off the async Tasks.
+An Async/Await example in C# where we have a console application startup method calling the ```TaskRunner.ProcessTasksAsync()``` static method to initiate and kick off the async Tasks.
 
 Not all classes are shown below, but just a subset, for brevity.
 
@@ -11,7 +11,7 @@ public class Program
     {
         Utility.RenderOutput("ProcessTasks.ProcessAllAsync", Utility.StepStarted);
 
-        ProcessTasks.ProcessAllAsync().Wait();
+        TaskRunner.ProcessTasksAsync().Wait();
 
         Utility.RenderOutput("ProcessTasks.ProcessAllAsync", Utility.StepDone);
 
@@ -21,30 +21,43 @@ public class Program
 }
 ```
 
-The ProcessTasks class initiates and kicks off the Tasks with the help of a Utility class that encapsulates some common usage.
-```C#
-internal class ProcessTasks
+The TaskRunner class is responsible for setting up the tasks to be run using the Command design pattern.
+```c#
+internal class TaskRunner
 {
     private static async Task SaveAll()
     {
-        Utility.RenderOutput("ProcessTasksSaveAll", Utility.StepStarted);
+        Utility.RenderOutput("TaskRunnerSaveAll", Utility.StepStarted);
 
+        // simulate a save routine by adding a little delay
         await Task.Delay(2000);
 
-        Utility.RenderOutput("ProcessTasksSaveAll", Utility.StepDone);
+        Utility.RenderOutput("TaskRunnerSaveAll", Utility.StepDone);
     }
 
-    public static async Task ProcessAllAsync()
+    public static async Task ProcessTasksAsync()
     {
-        // Create list and get worker data
-        var tasks = new List<Task> { FakeWorkerRepository.GetFakeWorkersAsync() };
+        // Create task list to store all our tasks we need to run
+        var tasks = new List<Task>();
+
+        // use Command pattern to execute tasks
+        var taskManager = new TaskManager();
 
         // iterate through and simulate 10 iterations of tasks to run
+        for (var i = 1; i <= 5; i++)
+        {
+            taskManager.AddTaskAsync(new DoTask1(i, 5000));
+            taskManager.AddTaskAsync(new DoTask2(i, 3000));
+        }
+
+        // create fake people and add to the tasks to run
         for (var i = 1; i <= 10; i++)
         {
-            tasks.Add(new DoTask1().RunAsync(i, 2000));
-            tasks.Add(new DoTask2().RunAsync(i, 5000));
+            taskManager.AddTaskAsync(new FakePersonRepository(i, 200));
         }
+
+        // we will add our DoTask to the current list of Tasks using the command pattern
+        tasks.Add(taskManager.RunTasksAsync());
 
         // when all worker data is retrieved and tasks are done
         await Task.WhenAll(tasks);
@@ -55,43 +68,81 @@ internal class ProcessTasks
 }
 ```
 
-An example of one of the Tasks classes
+The TaskManager class accepts a task to manage, then provides a method to run all the tasks in an async manner.
 ```C#
-public interface IDoTaskAsync
+internal class TaskManager : ITaskManager
 {
-    Task RunAsync(int num, int delayInMilliseconds);
-}
+    private readonly List<IDoTaskAsync> _tasks = new List<IDoTaskAsync>();
 
-public class DoTask1 : IDoTaskAsync
-{
-    private const string ClassIdentifier = "DoTask1RunAsync";
-
-    public async Task RunAsync(int num, int delayInMilliseconds)
+    public void AddTaskAsync(IDoTaskAsync task)
     {
-        await Utility.RunAsyncTask(ClassIdentifier, num, delayInMilliseconds);
+        _tasks.Add(task);
+    }
+
+    public async Task RunTasksAsync()
+    {
+        foreach (var task in _tasks)
+        {
+            await task.RunAsync();
+        }
+
+        _tasks.Clear();
     }
 }
 ```
 
-Here is where we fetch our Fake worker data...
-```c#
-internal class FakeWorkerRepository
+An example of one of the Tasks classes (DoTask1 and DoTask2 are identical)
+```C#
+public interface IDoTaskAsync
 {
-    public static async Task GetFakeWorkersAsync()
+    Task RunAsync();
+}
+
+public class DoTask1 : IDoTaskAsync
+{
+    private readonly int _delayInMilliseconds;
+    private readonly int _taskId;
+    private const string ClassIdentifier = "DoTask1RunAsync";
+
+    public DoTask1(int taskId, int delayInMilliseconds)
     {
-        var workerData = new List<FakeWorker>();
+        _taskId = taskId;
+        _delayInMilliseconds = delayInMilliseconds;
+    }
 
-        for (var i = 0; i <= 10; i++)
+    public async Task RunAsync()
+    {
+        await Utility.RunAsyncTask(ClassIdentifier, _taskId, _delayInMilliseconds);
+    }
+}
+```
+
+Here is where we fetch our Fake person data...
+```c#
+internal class FakePersonRepository : IDoTaskAsync
+{
+    private readonly int _delayInMilliseconds;
+    private readonly int _taskId;
+    private const string ClassIdentifier = "FakePersonRepository";
+
+    public FakePersonRepository(int taskId, int delayInMilliseconds)
+    {
+        _taskId = taskId;
+        _delayInMilliseconds = delayInMilliseconds;
+    }
+
+    public async Task RunAsync()
+    {
+        var fakePerson = new FakePerson()
         {
-            await Task.Delay(500);
+            FullName = Faker.Name.FullName()
+        };
 
-            workerData.Add(new FakeWorker()
-            {
-                FullName = Faker.Name.FullName()
-            });
-        }
-
-        workerData.ForEach(s => Console.WriteLine(@"Fetched workers at {0}: {1}", Utility.GetDate(), s));
+        await Utility.RunAsyncTask(
+            ClassIdentifier,
+            _taskId,
+            _delayInMilliseconds,
+            fakePerson.FullName);
     }
 }
 ```
@@ -108,14 +159,22 @@ public class Utility
         return DateTime.Now.ToString("hh:mm:ss.fff tt");
     }
 
-    public static void RenderOutput(string taskName, string stepName, int num)
-    {
-        Console.WriteLine(@"{0} {1} {2} at {3}", taskName, stepName.ToLower(), num.ToString(), GetDate());
-    }
-
     public static void RenderOutput(string taskName, string stepName)
     {
         Console.WriteLine(@"{0} {1} at {2}", taskName, stepName.ToLower(), GetDate());
+    }
+
+    public static void RenderOutput(string taskName, string stepName, int num, string message)
+    {
+        if (message != null)
+        {
+            Console.WriteLine(@"{0} {1} {2} [Message: {3}] at {4}", taskName, stepName.ToLower(), num, message,
+                GetDate());
+        }
+        else
+        {
+            Console.WriteLine(@"{0} {1} {2} at {3}", taskName, stepName.ToLower(), num, GetDate());
+        }
     }
 
     public static int GetDelay(int ms)
@@ -123,74 +182,84 @@ public class Utility
         return new Random(ms).Next(0, ms);
     }
 
-    public static async Task RunAsyncTask(string classIdentifier, int num, int delayInMilliseconds)
+    public static async Task RunAsyncTask(string classIdentifier, int num, int delayInMilliseconds, string message = null)
     {
-        RenderOutput(classIdentifier, StepStarted, num);
+        RenderOutput(classIdentifier, StepStarted, num, message);
 
-        var delay = GetDelay(delayInMilliseconds);
-        await Task.Delay(delay);
+        await Task.Delay(GetDelay(delayInMilliseconds));
 
-        RenderOutput(classIdentifier, StepDone, num);
+        RenderOutput(classIdentifier, StepDone, num, message);
+
+        Console.WriteLine("");
     }
 }
 ```
 
 The results will look something like this in your command window...
 ```console
-ProcessTasks.ProcessAllAsync started at 04:43:08.723 PM
-DoTask1RunAsync started 1 at 04:43:09.756 PM
-DoTask2RunAsync started 1 at 04:43:09.770 PM
-DoTask1RunAsync started 2 at 04:43:09.811 PM
-DoTask2RunAsync started 2 at 04:43:09.827 PM
-DoTask1RunAsync started 3 at 04:43:09.828 PM
-DoTask2RunAsync started 3 at 04:43:09.828 PM
-DoTask1RunAsync started 4 at 04:43:09.850 PM
-DoTask2RunAsync started 4 at 04:43:09.850 PM
-DoTask1RunAsync started 5 at 04:43:09.850 PM
-DoTask2RunAsync started 5 at 04:43:09.856 PM
-DoTask1RunAsync started 6 at 04:43:09.871 PM
-DoTask2RunAsync started 6 at 04:43:09.871 PM
-DoTask1RunAsync started 7 at 04:43:09.888 PM
-DoTask2RunAsync started 7 at 04:43:09.889 PM
-DoTask1RunAsync started 8 at 04:43:09.890 PM
-DoTask2RunAsync started 8 at 04:43:09.890 PM
-DoTask1RunAsync started 9 at 04:43:09.952 PM
-DoTask2RunAsync started 9 at 04:43:09.990 PM
-DoTask1RunAsync started 10 at 04:43:10.011 PM
-DoTask2RunAsync started 10 at 04:43:10.047 PM
-DoTask1RunAsync done 1 at 04:43:10.901 PM
-DoTask1RunAsync done 2 at 04:43:10.962 PM
-DoTask1RunAsync done 3 at 04:43:10.976 PM
-DoTask1RunAsync done 5 at 04:43:10.990 PM
-DoTask1RunAsync done 4 at 04:43:11.030 PM
-DoTask1RunAsync done 6 at 04:43:11.034 PM
-DoTask1RunAsync done 8 at 04:43:11.048 PM
-DoTask1RunAsync done 7 at 04:43:11.048 PM
-DoTask1RunAsync done 9 at 04:43:11.110 PM
-DoTask1RunAsync done 10 at 04:43:11.202 PM
-DoTask2RunAsync done 1 at 04:43:14.037 PM
-DoTask2RunAsync done 3 at 04:43:14.099 PM
-DoTask2RunAsync done 2 at 04:43:14.105 PM
-DoTask2RunAsync done 4 at 04:43:14.111 PM
-DoTask2RunAsync done 5 at 04:43:14.126 PM
-DoTask2RunAsync done 6 at 04:43:14.144 PM
-DoTask2RunAsync done 8 at 04:43:14.159 PM
-DoTask2RunAsync done 7 at 04:43:14.159 PM
-DoTask2RunAsync done 9 at 04:43:14.252 PM
-DoTask2RunAsync done 10 at 04:43:14.330 PM
-Fetched workers at 04:43:15.452 PM: Andrew Grant
-Fetched workers at 04:43:15.453 PM: Jazmin Schowalter
-Fetched workers at 04:43:15.453 PM: Lincoln Leuschke
-Fetched workers at 04:43:15.453 PM: Liliana Fadel
-Fetched workers at 04:43:15.454 PM: Ariane Stokes
-Fetched workers at 04:43:15.454 PM: Jeromy Stoltenberg
-Fetched workers at 04:43:15.454 PM: Demarcus Murray
-Fetched workers at 04:43:15.454 PM: Dr. Sid Marks
-Fetched workers at 04:43:15.454 PM: Ali VonRueden
-Fetched workers at 04:43:15.454 PM: Annalise Langosh
-Fetched workers at 04:43:15.454 PM: Melyna Boyle
-ProcessTasksSaveAll started at 04:43:15.455 PM
-ProcessTasksSaveAll done at 04:43:17.467 PM
-ProcessTasks.ProcessAllAsync done at 04:43:17.467 PM
+ProcessTasks.ProcessAllAsync started at 08:54:02.943 AM
+DoTask1RunAsync started 1 at 08:54:03.329 AM
+DoTask1RunAsync done 1 at 08:54:07.856 AM
+
+DoTask2RunAsync started 1 at 08:54:07.858 AM
+DoTask2RunAsync done 1 at 08:54:07.864 AM
+
+DoTask1RunAsync started 2 at 08:54:07.864 AM
+DoTask1RunAsync done 2 at 08:54:12.138 AM
+
+DoTask2RunAsync started 2 at 08:54:12.138 AM
+DoTask2RunAsync done 2 at 08:54:12.156 AM
+
+DoTask1RunAsync started 3 at 08:54:12.156 AM
+DoTask1RunAsync done 3 at 08:54:16.430 AM
+
+DoTask2RunAsync started 3 at 08:54:16.430 AM
+DoTask2RunAsync done 3 at 08:54:16.448 AM
+
+DoTask1RunAsync started 4 at 08:54:16.448 AM
+DoTask1RunAsync done 4 at 08:54:20.717 AM
+
+DoTask2RunAsync started 4 at 08:54:20.717 AM
+DoTask2RunAsync done 4 at 08:54:20.735 AM
+
+DoTask1RunAsync started 5 at 08:54:20.735 AM
+DoTask1RunAsync done 5 at 08:54:25.010 AM
+
+DoTask2RunAsync started 5 at 08:54:25.010 AM
+DoTask2RunAsync done 5 at 08:54:25.028 AM
+
+FakePersonRepository started 1 [Message: Miss Rickie Weber] at 08:54:25.084 AM
+FakePersonRepository done 1 [Message: Miss Rickie Weber] at 08:54:25.131 AM
+
+FakePersonRepository started 2 [Message: Giovani Cormier] at 08:54:25.132 AM
+FakePersonRepository done 2 [Message: Giovani Cormier] at 08:54:25.174 AM
+
+FakePersonRepository started 3 [Message: Haleigh Kunze] at 08:54:25.174 AM
+FakePersonRepository done 3 [Message: Haleigh Kunze] at 08:54:25.217 AM
+
+FakePersonRepository started 4 [Message: Dr. Oran Fahey] at 08:54:25.218 AM
+FakePersonRepository done 4 [Message: Dr. Oran Fahey] at 08:54:25.260 AM
+
+FakePersonRepository started 5 [Message: Hassan Schamberger] at 08:54:25.260 AM
+FakePersonRepository done 5 [Message: Hassan Schamberger] at 08:54:25.314 AM
+
+FakePersonRepository started 6 [Message: Laron Hauck] at 08:54:25.314 AM
+FakePersonRepository done 6 [Message: Laron Hauck] at 08:54:25.357 AM
+
+FakePersonRepository started 7 [Message: Davon Metz] at 08:54:25.357 AM
+FakePersonRepository done 7 [Message: Davon Metz] at 08:54:25.399 AM
+
+FakePersonRepository started 8 [Message: Tiara Willms] at 08:54:25.399 AM
+FakePersonRepository done 8 [Message: Tiara Willms] at 08:54:25.452 AM
+
+FakePersonRepository started 9 [Message: Freeda Schowalter] at 08:54:25.452 AM
+FakePersonRepository done 9 [Message: Freeda Schowalter] at 08:54:25.495 AM
+
+FakePersonRepository started 10 [Message: Estefania Swift] at 08:54:25.497 AM
+FakePersonRepository done 10 [Message: Estefania Swift] at 08:54:25.541 AM
+
+TaskRunnerSaveAll started at 08:54:25.543 AM
+TaskRunnerSaveAll done at 08:54:27.553 AM
+ProcessTasks.ProcessAllAsync done at 08:54:27.553 AM
 Press any key to continue...
 ```
