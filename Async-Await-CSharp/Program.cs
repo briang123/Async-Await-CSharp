@@ -6,11 +6,11 @@ namespace Async_Await_CSharp
     {
         public static void Main()
         {
-            Utility.RenderOutput("ProcessTasks.ProcessAllAsync", Utility.StepStarted);
+            Console.WriteLine(Utility.GenerateOutputMessage("ProcessTasks.ProcessAllAsync", Utility.StepStarted));
 
             TaskRunner.ProcessAsync().Wait();
 
-            Utility.RenderOutput("ProcessTasks.ProcessAllAsync", Utility.StepDone);
+            Console.WriteLine(Utility.GenerateOutputMessage("ProcessTasks.ProcessAllAsync", Utility.StepDone));
 
             Console.WriteLine(@"Press any key to continue...");
             Console.ReadKey(true);

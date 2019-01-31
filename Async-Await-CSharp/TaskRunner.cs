@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace Async_Await_CSharp
@@ -7,12 +7,12 @@ namespace Async_Await_CSharp
     {
         private static async Task SaveAll()
         {
-            Utility.RenderOutput("TaskRunnerSaveAll", Utility.StepStarted);
+            Console.WriteLine(Utility.GenerateOutputMessage("TaskRunnerSaveAll", Utility.StepStarted));
 
             // simulate a save routine by adding a little delay
             await Task.Delay(2000);
 
-            Utility.RenderOutput("TaskRunnerSaveAll", Utility.StepDone);
+            Console.WriteLine(Utility.GenerateOutputMessage("TaskRunnerSaveAll", Utility.StepDone));
         }
 
         public static async Task ProcessAsync()
