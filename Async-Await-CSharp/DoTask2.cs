@@ -4,11 +4,19 @@ namespace Async_Await_CSharp
 {
     public class DoTask2 : IDoTaskAsync
     {
+        private readonly int _delayInMilliseconds;
+        private readonly int _taskId;
         private const string ClassIdentifier = "DoTask2RunAsync";
 
-        public async Task RunAsync(int num, int delayInMilliseconds)
+        public DoTask2(int taskId, int delayInMilliseconds)
         {
-            await Utility.RunAsyncTask(ClassIdentifier, num, delayInMilliseconds);
+            _taskId = taskId;
+            _delayInMilliseconds = delayInMilliseconds;
+        }
+
+        public async Task RunAsync()
+        {
+            await Utility.RunAsyncTask(ClassIdentifier, _taskId, _delayInMilliseconds);
         }
     }
 }
