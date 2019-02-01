@@ -5,7 +5,7 @@ namespace Async_Await_CSharp
 {
     public class TaskBase : ITaskBase
     {
-        public async Task RunAsyncTask(
+        public async Task<string> RunAsyncTask(
             string classIdentifier, int num, int delayInMilliseconds, string message = null)
         {
             Console.WriteLine(
@@ -27,6 +27,8 @@ namespace Async_Await_CSharp
             );
 
             Console.WriteLine("");
+
+            return $"{classIdentifier}:{num.ToString()}{(message != null ? ":" + message : "")}";
         }
     }
 }

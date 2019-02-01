@@ -1,8 +1,6 @@
 ﻿using Async_Await_CSharp;
-using Moq;
 using NUnit.Framework;
 using System;
-using System.Threading.Tasks;
 
 namespace Tests
 {
@@ -26,11 +24,11 @@ namespace Tests
         }
 
         [Test]
-        public void GetDate_CheckCurrentDate_ReturnsExpectedFormat()
+        public void GenerateOutputMessage_StepDone_ReturnsBeginningOfDoneMessageTextToWrite()
         {
-            var result = Utility.GetFormattedDate(_currentDate);
+            var result = Utility.GenerateOutputMessage(_taskName, Utility.StepDone);
 
-            Assert.That(result, Is.EqualTo(_currentFormattedDate));
+            StringAssert.StartsWith("task done at", result);
         }
 
         [Test]
@@ -42,15 +40,8 @@ namespace Tests
         }
 
         [Test]
-        public void GenerateOutputMessage_StepDone_ReturnsBeginningOfDoneMessageTextToWrite()
-        {
-            var result = Utility.GenerateOutputMessage(_taskName, Utility.StepDone);
-
-            StringAssert.StartsWith("task done at", result);
-        }
-
-        [Test]
-        public void GenerateOutputMessage_StepStartWithIterationWithMessage_ReturnsBeginningOfStartedMessageTextWithMessageIncluded()
+        public void
+            GenerateOutputMessage_StepStartWithIterationWithMessage_ReturnsBeginningOfStartedMessageTextWithMessageIncluded()
         {
             var result = Utility.GenerateOutputMessage(_taskName, Utility.StepStarted, _iterationNumber, _message);
 
@@ -58,7 +49,8 @@ namespace Tests
         }
 
         [Test]
-        public void GenerateOutputMessage_StepStartWithIterationWithNoMessage_ReturnsBeginningOfStartedMessageTextWithoutMessageIncluded()
+        public void
+            GenerateOutputMessage_StepStartWithIterationWithNoMessage_ReturnsBeginningOfStartedMessageTextWithoutMessageIncluded()
         {
             var result = Utility.GenerateOutputMessage(_taskName, Utility.StepStarted, _iterationNumber, null);
 
@@ -66,11 +58,11 @@ namespace Tests
         }
 
         [Test]
-        public void GetDelay_SetNoDelay_DelayIsZeroMilliseconds()
+        public void GetDate_CheckCurrentDate_ReturnsExpectedFormat()
         {
-            var result = Utility.GetDelay(0);
+            var result = Utility.GetFormattedDate(_currentDate);
 
-            Assert.That(result, Is.EqualTo(0));
+            Assert.That(result, Is.EqualTo(_currentFormattedDate));
         }
 
         [Test]
@@ -88,6 +80,13 @@ namespace Tests
 
             Assert.That(result, Is.LessThanOrEqualTo(10));
         }
-    }
 
+        [Test]
+        public void GetDelay_SetNoDelay_DelayIsZeroMilliseconds()
+        {
+            var result = Utility.GetDelay(0);
+
+            Assert.That(result, Is.EqualTo(0));
+        }
+    }
 }

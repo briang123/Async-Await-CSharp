@@ -14,9 +14,9 @@ namespace Async_Await_CSharp
             _delayInMilliseconds = delayInMilliseconds;
         }
 
-        public async Task RunAsync()
+        public async Task<string> RunAsync()
         {
-            await base.RunAsyncTask(ClassIdentifier, _taskId, _delayInMilliseconds);
+            return await RunAsyncTask(ClassIdentifier, _taskId, _delayInMilliseconds);
         }
     }
 }

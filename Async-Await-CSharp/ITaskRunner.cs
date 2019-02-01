@@ -2,9 +2,9 @@
 
 namespace Async_Await_CSharp
 {
-    internal interface ITaskRunner
+    public interface ITaskRunner
     {
-        Task SaveAll();
+        Task<bool> SaveAll();
         Task ProcessAsync();
     }
 }

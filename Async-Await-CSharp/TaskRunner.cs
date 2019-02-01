@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Async_Await_CSharp
 {
-    internal class TaskRunner : ITaskRunner
+    public class TaskRunner : ITaskRunner
     {
-        public async Task SaveAll()
+        public async Task<bool> SaveAll()
         {
             Console.WriteLine(Utility.GenerateOutputMessage("TaskRunnerSaveAll", Utility.StepStarted));
 
@@ -13,6 +13,8 @@ namespace Async_Await_CSharp
             await Task.Delay(2000);
 
             Console.WriteLine(Utility.GenerateOutputMessage("TaskRunnerSaveAll", Utility.StepDone));
+
+            return true;
         }
 
         public async Task ProcessAsync()
@@ -30,7 +32,12 @@ namespace Async_Await_CSharp
             // create fake people and add to the tasks to run
             for (var i = 1; i <= 10; i++)
             {
-                taskManager.AddTaskAsync(new FakePersonRepository(i, 200));
+                var fakePerson = new FakePerson()
+                {
+                    FullName = Faker.Name.FullName()
+                };
+
+                taskManager.AddTaskAsync(new FakePersonRepository(i, 200, fakePerson));
             }
 
             // wait until all tasks are done executing

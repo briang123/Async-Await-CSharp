@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Async_Await_CSharp
 {
-    internal class TaskManager : ITaskManager
+    public class TaskManager : ITaskManager
     {
         private readonly List<IDoTaskAsync> _tasks = new List<IDoTaskAsync>();
 
@@ -12,7 +12,7 @@ namespace Async_Await_CSharp
             _tasks.Add(task);
         }
 
-        public async Task RunTasksAsync()
+        public async Task<bool> RunTasksAsync()
         {
             foreach (var task in _tasks)
             {
@@ -20,6 +20,8 @@ namespace Async_Await_CSharp
             }
 
             _tasks.Clear();
+
+            return _tasks.Count == 0;
         }
     }
 }

@@ -1,33 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Async_Await_CSharp
 {
-    internal class FakePersonRepository : TaskBase, IDoTaskAsync
+    public class FakePersonRepository : TaskBase, IDoTaskAsync
     {
         private readonly int _delayInMilliseconds;
+        private readonly IFakePerson _fakePerson;
         private readonly int _taskId;
         private const string ClassIdentifier = "FakePersonRepository";
 
-        public FakePersonRepository(int taskId, int delayInMilliseconds)
+        public FakePersonRepository(int taskId, int delayInMilliseconds, IFakePerson fakePerson)
         {
             _taskId = taskId;
             _delayInMilliseconds = delayInMilliseconds;
+            _fakePerson = fakePerson;
         }
 
-        public async Task RunAsync()
+        public async Task<string> RunAsync()
         {
-            var fakePerson = new FakePerson()
-            {
-                FullName = Faker.Name.FullName()
-            };
-
-            await base.RunAsyncTask(
+            return await RunAsyncTask(
                 ClassIdentifier,
                 _taskId,
                 _delayInMilliseconds,
-                fakePerson.FullName);
+                _fakePerson.FullName);
         }
     }
 }

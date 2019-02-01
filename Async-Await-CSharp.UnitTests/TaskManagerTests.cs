@@ -1,19 +1,32 @@
 using Async_Await_CSharp;
-using Moq;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace Tests
 {
     [TestFixture]
     internal class TaskManagerTests
     {
-        private Mock<ITaskManager> _taskManager;
+        private ITaskManager _taskManager;
+        private int _taskId;
+        private int _delayInMilliseconds;
 
         [SetUp]
         public void Setup()
         {
-            _taskManager = new Mock<ITaskManager>();
+            _taskId = 1;
+            _delayInMilliseconds = 10;
+            _taskManager = new TaskManager();
         }
 
+        [Test]
+        public async Task RunTasksAsync_ProcessAllTasks_ReturnsTrue()
+        {
+            _taskManager.AddTaskAsync(new DoTask1(_taskId, _delayInMilliseconds));
+
+            var result = await _taskManager.RunTasksAsync();
+
+            Assert.That(result, Is.True);
+        }
     }
 }

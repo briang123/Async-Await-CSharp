@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace Async_Await_CSharp
 {
@@ -29,16 +28,5 @@ namespace Async_Await_CSharp
         {
             return new Random(ms).Next(0, ms);
         }
-
-        //public static async Task RunAsyncTask(string classIdentifier, int num, int delayInMilliseconds, string message = null)
-        //{
-        //    Console.WriteLine(GenerateOutputMessage(classIdentifier, StepStarted, num, message));
-
-        //    await Task.Delay(GetDelay(delayInMilliseconds));
-
-        //    Console.WriteLine(GenerateOutputMessage(classIdentifier, StepDone, num, message));
-
-        //    Console.WriteLine("");
-        //}
     }
 }

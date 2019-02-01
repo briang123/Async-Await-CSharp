@@ -23,9 +23,9 @@ public class Program
 
 The TaskRunner class is responsible for setting up the tasks to be run using the Command design pattern.
 ```c#
-internal class TaskRunner
+public class TaskRunner : ITaskRunner
 {
-    private static async Task SaveAll()
+    public async Task<bool> SaveAll()
     {
         Console.WriteLine(Utility.GenerateOutputMessage("TaskRunnerSaveAll", Utility.StepStarted));
 
@@ -33,9 +33,11 @@ internal class TaskRunner
         await Task.Delay(2000);
 
         Console.WriteLine(Utility.GenerateOutputMessage("TaskRunnerSaveAll", Utility.StepDone));
+
+        return true;
     }
 
-    public static async Task ProcessAsync()
+    public async Task ProcessAsync()
     {
         // use Command pattern to execute tasks
         var taskManager = new TaskManager();
@@ -50,7 +52,12 @@ internal class TaskRunner
         // create fake people and add to the tasks to run
         for (var i = 1; i <= 10; i++)
         {
-            taskManager.AddTaskAsync(new FakePersonRepository(i, 200));
+            var fakePerson = new FakePerson()
+            {
+                FullName = Faker.Name.FullName()
+            };
+
+            taskManager.AddTaskAsync(new FakePersonRepository(i, 200, fakePerson));
         }
 
         // wait until all tasks are done executing
@@ -59,12 +66,13 @@ internal class TaskRunner
         // simulate a batch save
         await SaveAll();
     }
+
 }
 ```
 
 The TaskManager class accepts a task to manage, then provides a method to run all the tasks in an async manner.
 ```C#
-internal class TaskManager : ITaskManager
+public class TaskManager : ITaskManager
 {
     private readonly List<IDoTaskAsync> _tasks = new List<IDoTaskAsync>();
 
@@ -73,7 +81,7 @@ internal class TaskManager : ITaskManager
         _tasks.Add(task);
     }
 
-    public async Task RunTasksAsync()
+    public async Task<bool> RunTasksAsync()
     {
         foreach (var task in _tasks)
         {
@@ -81,6 +89,8 @@ internal class TaskManager : ITaskManager
         }
 
         _tasks.Clear();
+
+        return _tasks.Count == 0;
     }
 }
 ```
@@ -89,10 +99,10 @@ An example of one of the Tasks classes (DoTask1 and DoTask2 are identical)
 ```C#
 public interface IDoTaskAsync
 {
-    Task RunAsync();
+    Task<string> RunAsync();
 }
 
-public class DoTask1 : IDoTaskAsync
+public class DoTask1 : TaskBase, IDoTaskAsync
 {
     private readonly int _delayInMilliseconds;
     private readonly int _taskId;
@@ -104,39 +114,36 @@ public class DoTask1 : IDoTaskAsync
         _delayInMilliseconds = delayInMilliseconds;
     }
 
-    public async Task RunAsync()
+    public async Task<string> RunAsync()
     {
-        await Utility.RunAsyncTask(ClassIdentifier, _taskId, _delayInMilliseconds);
+        return await RunAsyncTask(ClassIdentifier, _taskId, _delayInMilliseconds);
     }
 }
 ```
 
 Here is where we fetch our Fake person data...
 ```c#
-internal class FakePersonRepository : IDoTaskAsync
+public class FakePersonRepository : TaskBase, IDoTaskAsync
 {
     private readonly int _delayInMilliseconds;
+    private readonly IFakePerson _fakePerson;
     private readonly int _taskId;
     private const string ClassIdentifier = "FakePersonRepository";
 
-    public FakePersonRepository(int taskId, int delayInMilliseconds)
+    public FakePersonRepository(int taskId, int delayInMilliseconds, IFakePerson fakePerson)
     {
         _taskId = taskId;
         _delayInMilliseconds = delayInMilliseconds;
+        _fakePerson = fakePerson;
     }
 
-    public async Task RunAsync()
+    public async Task<string> RunAsync()
     {
-        var fakePerson = new FakePerson()
-        {
-            FullName = Faker.Name.FullName()
-        };
-
-        await Utility.RunAsyncTask(
+        return await RunAsyncTask(
             ClassIdentifier,
             _taskId,
             _delayInMilliseconds,
-            fakePerson.FullName);
+            _fakePerson.FullName);
     }
 }
 ```
@@ -168,17 +175,6 @@ public class Utility
     public static int GetDelay(int ms)
     {
         return new Random(ms).Next(0, ms);
-    }
-
-    public static async Task RunAsyncTask(string classIdentifier, int num, int delayInMilliseconds, string message = null)
-    {
-        Console.WriteLine(GenerateOutputMessage(classIdentifier, StepStarted, num, message));
-
-        await Task.Delay(GetDelay(delayInMilliseconds));
-
-        Console.WriteLine(GenerateOutputMessage(classIdentifier, StepDone, num, message));
-
-        Console.WriteLine("");
     }
 }
 ```
