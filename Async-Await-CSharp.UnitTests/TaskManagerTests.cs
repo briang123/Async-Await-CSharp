@@ -15,15 +15,5 @@ namespace Tests
             _taskManager = new Mock<ITaskManager>();
         }
 
-        //[Test]
-        //public void AddTaskAsync_AddTask_ReturnsNewlyAddedTask()
-        //{
-        //    var task = new DoTask1(1, 500);
-
-        //    //_taskManager.Setup(t => t.AddTaskAsync(It.IsAny<IDoTaskAsync>()));
-
-
-        //}
-
     }
 }

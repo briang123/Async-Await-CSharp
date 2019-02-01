@@ -88,14 +88,6 @@ namespace Tests
 
             Assert.That(result, Is.LessThanOrEqualTo(10));
         }
-
-        //[Test]
-        //public async Task RunAsyncTask_CheckForDelay_ReturnsDelayedTaskAsync()
-        //{
-        //    await Utility.RunAsyncTask("a", _iterationNumber, 0);
-
-
-        //}
     }
 
 }
