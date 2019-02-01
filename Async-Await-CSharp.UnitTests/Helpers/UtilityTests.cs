@@ -1,6 +1,7 @@
 ﻿using Async_Await_CSharp;
 using NUnit.Framework;
 using System;
+using Async_Await_CSharp.Helpers;
 
 namespace Tests
 {

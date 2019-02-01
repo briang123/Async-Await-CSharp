@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Async_Await_CSharp
+namespace Async_Await_CSharp.Interfaces
 {
     public interface IFakePerson
     {

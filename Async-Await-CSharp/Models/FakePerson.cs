@@ -1,6 +1,7 @@
 ﻿using System;
+using Async_Await_CSharp.Interfaces;
 
-namespace Async_Await_CSharp
+namespace Async_Await_CSharp.Models
 {
     public class FakePerson : IFakePerson
     {
